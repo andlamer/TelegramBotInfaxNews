@@ -14,7 +14,7 @@ namespace TelegramBot
         public event Action<string> LatestNewsWhereUpdated;
 
         private DateTime _lastNewsTime;
-        private string _lastId = "";
+        private string _lastId = System.IO.File.ReadAllText("lastId.txt");
 
         public NewsHandler()
         {
@@ -40,6 +40,7 @@ namespace TelegramBot
                     Console.WriteLine(item.PublishDate.DateTime);
                     LatestNewsWhereUpdated?.Invoke(ConvertNewsToString(item));
                     _lastId = item.Id;
+                    System.IO.File.WriteAllText("lastId.txt", _lastId);
                 }
 
                 _lastNewsTime = recent.PublishDate.DateTime;
