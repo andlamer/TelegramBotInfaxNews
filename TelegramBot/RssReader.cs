@@ -7,9 +7,9 @@ namespace TelegramBot
 {
 	public class RssReader
 	{
-		private const string UrlPath = "https://interfax.com.ua/news/last.rss/";
+		private const string UrlPath = "https://lb.ua/rss/ukr/rss.xml";
 		
-		List<SyndicationItem> ReadRss()
+		public List<SyndicationItem> ReadRss()
 		{
 			var xmlReader = XmlReader.Create(UrlPath);
 			var feed = SyndicationFeed.Load(xmlReader);

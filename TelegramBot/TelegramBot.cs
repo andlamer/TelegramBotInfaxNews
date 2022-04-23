@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -9,16 +10,24 @@ namespace TelegramBot
 {
     public class TelegramBot
     {
-        private const string HttpToken = "5345618106:AAH7L4zGuxygRYF9xIArERfrsnYH-41FDGY";
+        private const string HttpToken = "5345618106:AAG3MlAm_f4YP8gBM30ueyxBJW7HBoiR8sU";
 
-        private static ITelegramBotClient _telegramBotClient = new TelegramBotClient(HttpToken);
+        private static readonly ITelegramBotClient TelegramBotClient = new TelegramBotClient(HttpToken);
+        private static readonly MessageHandler MessageHandler = new MessageHandler(TelegramBotClient);
 
         public static async Task HandleUpdateAsync(ITelegramBotClient client, Update update,
             CancellationToken cancellationToken)
         {
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
             {
-                await MessageHandler.HandleMessage(update.Message?.Text);
+                try
+                {
+                    await MessageHandler.HandleMessage(update.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 
@@ -35,7 +44,9 @@ namespace TelegramBot
             {
                 AllowedUpdates = { }
             };
-            _telegramBotClient.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cts.Token);
+            TelegramBotClient.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cts.Token);
+
+
             Console.ReadLine();
         }
     }
