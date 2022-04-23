@@ -31,11 +31,11 @@ namespace TelegramBot
                 var newsList = _rssReader.ReadRss().OrderBy(item => item.PublishDate.DateTime);
                 var recent = newsList.Last();
                 if (_lastNewsTime == recent.PublishDate.DateTime && _lastId.Equals(recent.Id)) continue;
-
+                
                 foreach (var item in newsList.Where(item =>
-                             item.PublishDate.DateTime.Ticks > _lastNewsTime.Ticks
-                             || (item.PublishDate.DateTime.Ticks.Equals(_lastNewsTime.Ticks) &&
-                                 !item.Id.Equals(_lastId))))
+                             (item.PublishDate.DateTime - _lastNewsTime).TotalSeconds > 0
+                             || (item.PublishDate.DateTime - _lastNewsTime).TotalSeconds == 0 &&
+                             !item.Id.Equals(_lastId)))
                 {
                     Console.WriteLine(item.PublishDate.DateTime);
                     LatestNewsWhereUpdated?.Invoke(ConvertNewsToString(item));
@@ -43,7 +43,7 @@ namespace TelegramBot
                 }
 
                 _lastNewsTime = recent.PublishDate.DateTime;
-                var jsonString = JsonSerializer.Serialize(recent);
+                var jsonString = JsonSerializer.Serialize(_lastNewsTime);
                 System.IO.File.WriteAllText("lastTime.json", jsonString);
             }
         }

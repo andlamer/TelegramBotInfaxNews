@@ -21,7 +21,6 @@ namespace TelegramBot
             _newsHandler.LatestNewsWhereUpdated += SendLatestNews;
             var lines = File.ReadAllLines("cached_ids.txt");
             lines.ToList().ForEach(x => _cachedChatIds.Add(long.Parse(x)));
-            ;
         }
 
         public async Task HandleMessage(Message message)
