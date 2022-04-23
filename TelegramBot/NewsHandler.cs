@@ -28,16 +28,18 @@ namespace TelegramBot
             {
                 await Task.Delay(TimeSpan.FromSeconds(SecondsToUpdate));
                 var newsList = _rssReader.ReadRss().OrderBy(item => item.PublishDate.DateTime);
-                foreach (var item in newsList.Where(item => item.PublishDate.DateTime > _lastNewsTime))
+                foreach (var item in newsList.Where(item =>
+                             item.PublishDate.DateTime.Ticks > _lastNewsTime.Ticks))
                 {
-                    Console.Write(item.PublishDate.DateTime);
+                    Console.WriteLine(item.PublishDate.DateTime);
                     LatestNewsWhereUpdated?.Invoke(ConvertNewsToString(item));
                 }
 
                 var recent = newsList.Last().PublishDate.DateTime;
                 if (_lastNewsTime == recent) continue;
+                _lastNewsTime = recent;
                 var jsonString = JsonSerializer.Serialize(recent);
-                await System.IO.File.WriteAllTextAsync("lastTime.json", jsonString);
+                System.IO.File.WriteAllText("lastTime.json", jsonString);
             }
         }
 
