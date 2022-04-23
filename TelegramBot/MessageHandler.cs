@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using File = System.IO.File;
 
 namespace TelegramBot
 {
@@ -17,6 +19,9 @@ namespace TelegramBot
             _client = client;
             _newsHandler = new NewsHandler();
             _newsHandler.LatestNewsWhereUpdated += SendLatestNews;
+            var lines = File.ReadAllLines("cached_ids.txt");
+            lines.ToList().ForEach(x => _cachedChatIds.Add(long.Parse(x)));
+            ;
         }
 
         public async Task HandleMessage(Message message)
@@ -51,6 +56,7 @@ namespace TelegramBot
                     await Unsubscribe(message);
                     break;
             }
+
             Console.WriteLine(message.Text);
         }
 
@@ -78,6 +84,7 @@ namespace TelegramBot
             if (!_cachedChatIds.Contains(message.Chat.Id))
             {
                 _cachedChatIds.Add(message.Chat.Id);
+                await File.WriteAllLinesAsync("cached_ids.txt", _cachedChatIds.ToList().Select(x => x.ToString()));
                 await SendMessage(message, Constants.Subscribed);
             }
         }
@@ -87,6 +94,7 @@ namespace TelegramBot
             if (_cachedChatIds.Contains(message.Chat.Id))
             {
                 _cachedChatIds.Remove(message.Chat.Id);
+                await File.WriteAllLinesAsync("cached_ids.txt", _cachedChatIds.ToList().Select(x => x.ToString()));
                 await SendMessage(message, Constants.Unsubscribed);
             }
         }
